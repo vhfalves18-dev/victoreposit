@@ -88,6 +88,11 @@
       cursor: pointer;
     }
 
+    .botao:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .botao:hover {
       background: #2980b9;
     }
@@ -162,6 +167,7 @@
     const db = firebase.firestore();
 
     let seguidores = 0;
+    let travado = false;
 
     function carregarSeguidores() {
       db.collection("perfil").doc("jesus").get().then((doc) => {
@@ -178,21 +184,28 @@
     }
 
     function seguir() {
+      if (travado) return;
+      travado = true;
+
+      const btn = document.getElementById("btnSeguir");
+      btn.disabled = true;
+
       const ref = db.collection("perfil").doc("jesus");
 
       ref.get().then((doc) => {
-        let atual = doc.exists ? doc.data().seguidores : 0;
-        let novo = atual + 1;
+        let data = doc.exists ? doc.data() : { seguidores: 0 };
 
-        ref.set({ seguidores: novo });
+        data.seguidores = (data.seguidores || 0) + 1;
 
-        seguidores = novo;
+        ref.set(data).then(() => {
+          document.getElementById("seguidores").innerText =
+            data.seguidores + " seguidores";
 
-        let el = document.getElementById("seguidores");
-        el.innerText = novo + " seguidores";
-
-        el.classList.add("animar-contador");
-        setTimeout(() => el.classList.remove("animar-contador"), 200);
+          setTimeout(() => {
+            btn.disabled = false;
+            travado = false;
+          }, 500);
+        });
       });
     }
 
@@ -227,7 +240,7 @@
     <p>Amor, fé e esperança</p>
 
     <div class="acoes">
-      <button class="botao" onclick="seguir()">Seguir</button>
+      <button id="btnSeguir" class="botao" onclick="seguir()">Seguir</button>
     </div>
 
     <div id="seguidores" class="contador">0 seguidores</div>
