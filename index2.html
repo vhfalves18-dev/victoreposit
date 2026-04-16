@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil de Jesus</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background-color: #f8f9fa;
+    }
+
+    .dark {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .container {
+      width: 60%;
+      margin: auto;
+      margin-top: 30px;
+      background: white;
+      padding: 0 25px 25px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .dark .container {
+      background: #1e1e1e;
+    }
+
+    .capa {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+
+    .perfil {
+      text-align: center;
+      margin-top: -60px;
+    }
+
+    .perfil img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .acoes {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .contador {
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+
+    .animar-contador {
+      transform: scale(1.3);
+    }
+
+    .botao {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .botao:hover {
+      background: #2980b9;
+    }
+
+    .tema-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: #2c3e50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .dark .card {
+      background: #2c2c2c;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        padding: 0 10px 20px 10px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .perfil img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+
+  <script>
+    // 🔥 FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3ngJ73oV2V6VsMEwFDG1jV8X8yYBbKuw",
+      authDomain: "site-jesus.firebaseapp.com",
+      projectId: "site-jesus",
+      storageBucket: "site-jesus.appspot.com",
+      messagingSenderId: "39068138795",
+      appId: "1:39068138795:web:310aa832c621b6b397996e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let seguidores = 0;
+
+    function carregarSeguidores() {
+      db.collection("perfil").doc("jesus").get().then((doc) => {
+        if (doc.exists) {
+          seguidores = doc.data().seguidores;
+        } else {
+          seguidores = 0;
+          db.collection("perfil").doc("jesus").set({ seguidores: 0 });
+        }
+
+        document.getElementById("seguidores").innerText =
+          seguidores + " seguidores";
+      });
+    }
+
+    function seguir() {
+      const ref = db.collection("perfil").doc("jesus");
+
+      ref.get().then((doc) => {
+        let atual = doc.exists ? doc.data().seguidores : 0;
+        let novo = atual + 1;
+
+        ref.set({ seguidores: novo });
+
+        seguidores = novo;
+
+        let el = document.getElementById("seguidores");
+        el.innerText = novo + " seguidores";
+
+        el.classList.add("animar-contador");
+        setTimeout(() => el.classList.remove("animar-contador"), 200);
+      });
+    }
+
+    function mudarTema() {
+      document.body.classList.toggle("dark");
+      let btn = document.getElementById("temaBtn");
+      btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    }
+
+    window.onload = function () {
+      carregarSeguidores();
+    }
+  </script>
+
+</head>
+
+<body>
+
+<header>
+  Perfil - Jesus Cristo
+</header>
+
+<button id="temaBtn" class="tema-btn" onclick="mudarTema()">🌙</button>
+
+<div class="container">
+
+  <img class="capa" src="https://static.vecteezy.com/ti/fotos-gratis/t1/22247832-a-caverna-e-aberto-e-la-estao-tres-cruzes-em-a-colina-a-festa-do-a-ressurreicao-do-jesus-cristo-ai-foto.jpg">
+
+  <div class="perfil">
+    <img src="https://imgcdn.stablediffusionweb.com/2024/11/7/ece40b37-4a35-4a5c-afd9-bb6b51fd0a8a.jpg">
+    <h2>Jesus Cristo</h2>
+    <p>Amor, fé e esperança</p>
+
+    <div class="acoes">
+      <button class="botao" onclick="seguir()">Seguir</button>
+    </div>
+
+    <div id="seguidores" class="contador">0 seguidores</div>
+  </div>
+
+  <div class="info">
+    <h3>Sobre</h3>
+
+    <div class="cards">
+
+      <div class="card">
+        💼 <strong>Trabalho</strong><br>
+        Pregador<br>
+        <small>Ensinava sobre amor, fé e perdão</small>
+      </div>
+
+      <div class="card">
+        🏠 <strong>Morou em</strong><br>
+        Belém e Nazaré<br>
+        <small>Regiões importantes da sua infância</small>
+      </div>
+
+      <div class="card">
+        📍 <strong>Frequentou</strong><br>
+        Jerusalém<br>
+        <small>Local de ensinamentos e acontecimentos marcantes</small>
+      </div>
+
+      <div class="card">
+        🙏 <strong>Contato</strong><br>
+        Oração<br>
+        <small>Conexão espiritual com Deus</small>
+      </div>
+
+      <div class="card">
+        ✨ <strong>Onde encontrar</strong><br>
+        Na fé<br>
+        <small>Presente no coração de quem acredita</small>
+      </div>
+
+      <div class="card">
+        👨‍👩‍👦 <strong>Família</strong><br>
+        Maria e José<br>
+        <small>Seus pais terrenos</small>
+      </div>
+
+      <div class="card">
+        👥 <strong>Amigos</strong><br>
+        Discípulos<br>
+        <small>Seguidores que espalharam seus ensinamentos</small>
+      </div>
+
+      <div class="card">
+        ❤️ <strong>Detalhes</strong><br>
+        Amor e perdão<br>
+        <small>Base de seus ensinamentos</small>
+      </div>
+
+      <div class="card">
+        ⭐ <strong>Acontecimentos</strong><br>
+        Milagres<br>
+        <small>Curas, ensinamentos e ressurreição</small>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Desenvolvido para atividade da crisma - © Victor Hugo
+</footer>
+
+</body>
+</html>
