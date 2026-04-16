@@ -152,8 +152,7 @@
     }
   </style>
 
-  <script>
-    // 🔥 FIREBASE CONFIG
+<script>
     const firebaseConfig = {
       apiKey: "AIzaSyC3ngJ73oV2V6VsMEwFDG1jV8X8yYBbKuw",
       authDomain: "site-jesus.firebaseapp.com",
@@ -166,20 +165,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let seguidores = 0;
     let travado = false;
 
-    function carregarSeguidores() {
-      db.collection("perfil").doc("jesus").get().then((doc) => {
-        if (doc.exists) {
-          seguidores = doc.data().seguidores;
-        } else {
-          seguidores = 0;
-          db.collection("perfil").doc("jesus").set({ seguidores: 0 });
-        }
+    const ref = db.collection("perfil").doc("jesus");
 
-        document.getElementById("seguidores").innerText =
-          seguidores + " seguidores";
+    // CRIA DOC SE NÃO EXISTIR + CARREGA
+    function carregar() {
+      ref.get().then((doc) => {
+        if (!doc.exists) {
+          ref.set({ seguidores: 0 });
+          document.getElementById("seguidores").innerText = "0 seguidores";
+        } else {
+          document.getElementById("seguidores").innerText =
+            doc.data().seguidores + " seguidores";
+        }
       });
     }
 
@@ -190,16 +189,16 @@
       const btn = document.getElementById("btnSeguir");
       btn.disabled = true;
 
-      const ref = db.collection("perfil").doc("jesus");
-
       ref.get().then((doc) => {
-        let data = doc.exists ? doc.data() : { seguidores: 0 };
+        let seguidores = doc.exists ? doc.data().seguidores : 0;
 
-        data.seguidores = (data.seguidores || 0) + 1;
+        seguidores = seguidores + 1;
 
-        ref.set(data).then(() => {
+        return ref.set({ seguidores: seguidores });
+      }).then(() => {
+        ref.get().then((doc) => {
           document.getElementById("seguidores").innerText =
-            data.seguidores + " seguidores";
+            doc.data().seguidores + " seguidores";
 
           setTimeout(() => {
             btn.disabled = false;
@@ -211,13 +210,11 @@
 
     function mudarTema() {
       document.body.classList.toggle("dark");
-      let btn = document.getElementById("temaBtn");
+      const btn = document.getElementById("temaBtn");
       btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙";
     }
 
-    window.onload = function () {
-      carregarSeguidores();
-    }
+    window.onload = carregar;
   </script>
 
 </head>
